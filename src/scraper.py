@@ -2,6 +2,7 @@
 import pandas as pd
 import json
 import re
+import time
 from os import walk
 
 from selenium import webdriver
@@ -21,46 +22,52 @@ def extract_project_url(df_input):
 # fungsi ekstraksi teks pada menu "Campaign"
 def extract_campaign_content(url):
     # inisialisasi chromedriver
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
+        options=options)
     
-    # tunggu 5 detik sebelum melakukan pengikisan
-    driver.implicitly_wait(5)
-    driver.get(url)
+    # tunggu maksimal 30 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(30)
+    driver.get(url+"/description")   
 
     content = driver.page_source
-    soup = BeautifulSoup(content, 'lxml')
-   
-	# ekstrak jumlah donasi
-    try:
-        money = soup.body.find('span', attrs={'class': 'money'}).contents[0].strip()
-    except:
-        money = ""
 
-	# ekstrak jumlah pendukung
-    try:
-        backer = soup.body.find_all('h3', attrs={'class': 'mb0'})[1].contents[0].strip()
-    except:
-        backer = ""
-
-	# ekstrak deskripsi proyek
-    try:
-        story = soup.body.find('div', attrs={'class': 'rte__content'}).contents[0]
-    except:
-        story = ""
-
-	# ekstrak resiko dan tantangan
-    try:
-        risks_and_challenges = soup.body.find('p', attrs={'class': 'js-risks-text text-preline'}).contents[0]
-    except:
-        risks_and_challenges = ""
-
-    # for span in mb0.span.find_all('span', recursive=False):
-        # print(span.attrs['money'])
+    # tunggu 5 detik
+    time.sleep(5)
 
     # akhiri sesi Selenium browser
     driver.quit()
+
+    soup = BeautifulSoup(content, "lxml")
+   
+    # ekstrak jumlah donasi
+    try:
+        money = soup.find("span", attrs={"class": "money"}).contents[0].strip()
+    except:
+        money = ""
+
+    # ekstrak jumlah pendukung
+    try:
+        backer = soup.find_all("h3", attrs={"class": "mb0"})[1].getText().strip()
+    except:
+        backer = ""
+
+    # ekstrak deskripsi proyek
+    try:
+        story = soup.find("div", attrs={"class": "rte__content"}).getText()
+    except:
+        story = ""
+
+    # ekstrak resiko dan tantangan
+    try:
+        risks_and_challenges = soup.find("p", attrs={"class": "js-risks-text text-preline"}).getText()
+    except:
+        risks_and_challenges = ""
     
-	# simpan konten ke dalam sebuah dictionary
+    # simpan konten ke dalam sebuah dictionary
     dict_res = {
         "money": money,
         "backer": backer,
@@ -69,7 +76,48 @@ def extract_campaign_content(url):
     }
     
     return dict_res
+
+# fungsi ekstraksi teks pada menu "FAQ"
+def extract_faq_content(url):
+    # inisialisasi chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
+        options=options)
     
+    # tunggu maksimal 30 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(30)
+    driver.get(url+"/faqs")   
+
+    content = driver.page_source
+
+    # tunggu 5 detik
+    time.sleep(5)
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
+    soup = BeautifulSoup(content, "lxml")
+
+    konten = [e for e in soup.body.find_all("li", attrs={"class": "js-faq bg-white border mb2 shadow-button radius2px hover-bg-grey-200"})]
+    
+    dict_res = {}
+    for idx, val in enumerate(konten):
+        pertanyaan = val.find("span", attrs={"class": "type-14 navy-700 medium"}).getText().strip()
+        jawaban = val.find("div", attrs={"class": "type-14 navy-700 normal"}).getText().strip()
+        tanggal = val.find("time")['datetime']
+    
+        dict_tmp = {
+            "pertanyaan" : pertanyaan,
+            "jawaban" : jawaban,
+            "tanggal" : tanggal
+        }
+        dict_res[idx] = dict_tmp
+
+    return dict_res
+
 # inisialisasi direktori data (berisi kumpulan berkas CSV)
 # data didapat dari https://webrobots.io/kickstarter-datasets/
 dir_path = ".\data"
@@ -83,7 +131,8 @@ for ele in filenames:
     list_project_site.extend(extract_project_url(df_kickstarter))
 
 # uji coba cetak hasil ekstraksi untuk satu url
-print(extract_campaign_content(list_project_site[0]))
+print(extract_campaign_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
+print(extract_faq_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 
 #ToDo
 # ekstraksi "FAQ"
