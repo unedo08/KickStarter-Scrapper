@@ -117,7 +117,41 @@ def extract_faq_content(url):
         dict_res[idx] = dict_tmp
 
     return dict_res
+def extract_comments_content(url):
+    # inisialisasi chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
+        options=options)
+    
+    # tunggu maksimal 30 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(30)
+    driver.get(url+"/comments")   
 
+    content = driver.page_source
+
+    # tunggu 5 detik
+    time.sleep(5)
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
+    soup = BeautifulSoup(content, "lxml")
+
+    konten = [e for e in soup.body.find_all("ul", attrs={"class": "bg-grey-100 border border-grey-400 p2 mb3"})]
+    dict_res = {}
+    for idx, val in enumerate(konten):
+        comment = val.find("p", attrs={"class": "type-14 mb0"}).getText().strip()
+        name = val.find("span", attrs={"class":"mr2"}).getText().strip()
+        dict_tmp = {
+            "Nama"  : name,
+            "Komentar" : comment
+        }
+        dict_res[idx] = dict_tmp
+
+    return dict_res
 # inisialisasi direktori data (berisi kumpulan berkas CSV)
 # data didapat dari https://webrobots.io/kickstarter-datasets/
 dir_path = ".\data"
@@ -133,6 +167,7 @@ for ele in filenames:
 # uji coba cetak hasil ekstraksi untuk satu url
 print(extract_campaign_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 print(extract_faq_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
+print(extract_comments_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 
 #ToDo
 # ekstraksi "FAQ"
