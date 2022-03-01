@@ -118,6 +118,80 @@ def extract_faq_content(url):
 
     return dict_res
 
+def extract_countries(div_input): ## untuk mendapatkan data top negara yang mengambil bagian pada project
+    country = div_input.find("div", class_="primary-text js-location-primary-text").find("a").contents[0]
+    backer = div_input.find("div", class_="tertiary-text js-location-tertiary-text").contents[0].getText().split()[0]
+    
+    dict_output = {
+        "country" : country,
+        "backer" : backer
+    }
+    return dict_output
+
+def extract_cities(div_input): ## untuk mendapatkan data top negara yang mengambil bagian pada project
+    city = div_input.find("div", class_="primary-text js-location-primary-text").find("a").contents[0]
+    country  = div_input.find("div", class_="secondary-text js-location-secondary-text").find("a").contents[0]
+    backer = div_input.find("div", class_="tertiary-text js-location-tertiary-text").contents[0].getText().split()[0]
+    
+    dict_output = {
+        "city" : city,
+        "country" : country,
+        "backer" : backer
+    }
+    return dict_output
+
+def extract_community_content(url):
+    # inisialisasi chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
+        options=options)
+    
+    # tunggu maksimal 30 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(30)
+    driver.get(url+"/community")   
+
+    content = driver.page_source
+    soup = BeautifulSoup(content, "lxml")
+    # tunggu 5 detik
+    time.sleep(5)
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
+    dict_top_cities = {}
+    dict_top_country = {}
+
+    section_cities = soup.find("div", class_="location-list js-locations-cities")
+    section_country = soup.find("div", class_="location-list js-locations-countries")
+
+    section_total_backers = soup.find("div", class_="community-section__hero")
+    total_backers= section_total_backers.find("div", class_="title").contents[0].getText().split()[0]
+
+    section_total_new_backers = soup.find("div", class_="new-backers")
+    total_new_backers = section_total_new_backers.find("div", class_="count").contents[0].getText().strip()
+
+    section_total_existing_backers = soup.find("div", class_="existing-backers")
+    total_existing_backers = section_total_existing_backers.find("div", class_="count").contents[0].getText().strip()
+
+    for idx, val in enumerate(section_cities.find_all("div", class_="location-list__item js-location-item")):
+        dict_top_cities[idx] = extract_cities(val)
+    for idx, val in enumerate(section_country.findAll("div", class_="location-list__item js-location-item")):
+        dict_top_country[idx] = extract_countries(val)
+
+
+    dict_temp = {
+            "Total Backer" : total_backers,
+            "Total New Backer": total_new_backers,
+            "Total Existing Backer": total_existing_backers,
+            "Top Cities" : dict_top_cities,
+            "Top Country": dict_top_country
+    }
+
+    return dict_temp
+
 # inisialisasi direktori data (berisi kumpulan berkas CSV)
 # data didapat dari https://webrobots.io/kickstarter-datasets/
 dir_path = ".\data"
