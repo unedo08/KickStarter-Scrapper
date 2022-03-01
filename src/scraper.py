@@ -207,6 +207,7 @@ for ele in filenames:
 # uji coba cetak hasil ekstraksi untuk satu url
 print(extract_campaign_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 print(extract_faq_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
+print(extract_community_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 
 #ToDo
 # ekstraksi "FAQ"
