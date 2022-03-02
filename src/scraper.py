@@ -212,5 +212,49 @@ print(extract_community_content("https://www.kickstarter.com/projects/lgbb/cockt
 #ToDo
 # ekstraksi "FAQ"
 # ekstraksi teks pada menu "Updates"
+def extract_info(url): ## untuk mendapatkan data top negara yang mengambil bagian pada project
+        # inisialisasi chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    
+    # tunggu maksimal 30 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(30)
+    driver.get(url+"/posts")   
+
+    content = driver.page_source
+
+    # tunggu 5 detik
+    time.sleep(5)
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
+    soup = BeautifulSoup(content, "html")
+    dict_res = []
+    for i in range(int(soup.find("span", attrs= {"class" : "count"}).text)):
+        title = soup.find_all("h2", attrs={"class": "mb3"})[:i]
+        date = soup.find_all("span", attrs={"class": "type-13 soft-black_50 block-md"})[:i]
+        author= soup.find_all("div", attrs={"class": "pl2"})[:i]
+        content= soup.find_all("div", attrs={"class": "rte__content"})[:i]
+        for value in title:
+            titles = value.text
+        for value in date:
+            dates = value.text
+        for value in author:
+            authors = value.text
+            dict_res.append({
+                'title': titles,
+                'dates': dates,
+                'authors': authors,
+                'content': content
+                })
+            
+    return dict_res
+
+# geting update info
+print(extract_info("https://www.kickstarter.com/projects/melissaaxel/it-takes-a-village-to-release-a-debut-album-0"))
 # ekstraksi teks pada menu "Comments"
 # ekstraksi teks pada menu "Community"
