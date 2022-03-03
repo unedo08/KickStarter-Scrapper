@@ -266,8 +266,8 @@ def extract_info(url): ## untuk mendapatkan data top negara yang mengambil bagia
             
     return dict_res
   
-# ekstraksi teks pada menu "Comments"
-def extract_comments_content(url):
+# fungsi ekstraksi teks pada menu "Comment"
+def extract_comment_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -278,23 +278,33 @@ def extract_comments_content(url):
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
     driver.implicitly_wait(30)
-    driver.get(url+"/comments") 
-    
+    driver.get(url+"/comments")   
+
     content = driver.page_source
+
+    # tunggu 5 detik
+    time.sleep(5)
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
     soup = BeautifulSoup(content, "lxml")
 
-    konten = [e for e in soup.body.find_all("ul", attrs={"class": "bg-grey-100 border border-grey-400 p2 mb3"})]
-    dict_res = {}
-    for idx, val in enumerate(konten):
-        comment = val.find("p", attrs={"class": "type-14 mb0"}).getText().strip()
-        name = val.find("span", attrs={"class":"mr2"}).getText().strip()
-        dict_tmp = {
-            "Nama"  : name,
-            "Komentar" : comment
-        }
-        dict_res[idx] = dict_tmp
-
-    return dict_res
+    section_comments = soup.find("ul", class_="bg-grey-100 border border-grey-400 p2 mb3")
+    list_of_comments = section_comments.find_all("li", class_="mb2")
+    for val in list_of_comments:
+        name_elemen = val.find("div").find("span", class_='mr2')
+        name = name_elemen.get_text() if name_elemen else "No Name"
+        komentar_elemen = val.find("div").find("p")
+        komentar = komentar_elemen.getText() if komentar_elemen else "No Comment"
+        times = val.find("div").find("time")['title']
+        
+        dict_output ={
+            "name" : name,
+            "time" : times,
+            "text" : komentar,
+            }
+        print(dict_output)
 
 # inisialisasi direktori data (berisi kumpulan berkas CSV)
 # data didapat dari https://webrobots.io/kickstarter-datasets/
@@ -311,7 +321,7 @@ for ele in filenames:
 # uji coba cetak hasil ekstraksi untuk satu url
 print(extract_campaign_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 print(extract_faq_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
-print(extract_comments_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
+print(extract_comment_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 print(extract_community_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
 print(extract_info("https://www.kickstarter.com/projects/melissaaxel/it-takes-a-village-to-release-a-debut-album-0"))
 
