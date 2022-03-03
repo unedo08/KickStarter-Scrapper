@@ -6,7 +6,11 @@ Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan per
 * pandas - versi 1.3.4
 * json
 * re
+* time
 * os
+* selenium - versi 4.1.2
+* webdriver_manager - versi 3.5.2
+* beautifulsoup4 - versi 4.10.0
 
 ## Penggunaan
 `python src\scraper.py`
