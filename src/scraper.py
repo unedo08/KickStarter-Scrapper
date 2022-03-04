@@ -4,6 +4,7 @@ import json
 import re
 import time
 from os import walk
+from datetime import datetime
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -52,19 +53,19 @@ def extract_campaign_content(url):
    
     # ekstrak jumlah donasi
     money = try_or(lambda: soup.find("span", \
-        class_="money").contents[0].strip(), '<n/a>')
+        class_="money").contents[0].strip(), "<n/a>")
 
     # ekstrak jumlah pendukung
     backer = try_or(lambda: soup.find_all("h3", \
-        class_="mb0")[1].getText().strip(), '<n/a>')
+        class_="mb0")[1].getText().strip(), "<n/a>")
 
     # ekstrak deskripsi proyek
     story = try_or(lambda: soup.find("div", \
-        class_="rte__content").getText(), '<n/a>')
+        class_="rte__content").getText(), "<n/a>")
 
     # ekstrak resiko dan tantangan
     risks_and_challenges = try_or(lambda: soup.find("p", \
-        class_="js-risks-text text-preline").getText(), '<n/a>')
+        class_="js-risks-text text-preline").getText(), "<n/a>")
     
     # simpan konten ke dalam sebuah dictionary
     dict_res = {
@@ -105,14 +106,14 @@ def extract_faq_content(url):
     
     dict_res = {}
     if not konten:
-        dict_res = '<n/a>'
+        dict_res = "<n/a>"
     else:
         for idx, val in enumerate(konten):
             pertanyaan = try_or(lambda: val.find("span", \
-                class_="type-14 navy-700 medium").getText().strip(), '<n/a>')
+                class_="type-14 navy-700 medium").getText().strip(), "<n/a>")
             jawaban = try_or(lambda: val.find("div", \
-                class_="type-14 navy-700 normal").getText().strip(), '<n/a>')
-            tanggal = try_or(lambda: val.find("time")['datetime'], '<n/a>')
+                class_="type-14 navy-700 normal").getText().strip(), "<n/a>")
+            tanggal = try_or(lambda: val.find("time")['datetime'], "<n/a>")
         
             dict_tmp = {
                 "pertanyaan" : pertanyaan,
@@ -126,9 +127,9 @@ def extract_faq_content(url):
 # fungsi untuk mendapatkan data top negara yang mengambil bagian pada project
 def extract_countries(div_input): 
     country = try_or(lambda: div_input.find("div", \
-        class_="primary-text js-location-primary-text").find("a").contents[0], '<n/a>')
+        class_="primary-text js-location-primary-text").find("a").contents[0], "<n/a>")
     backer = try_or(lambda: div_input.find("div", \
-        class_="tertiary-text js-location-tertiary-text").contents[0].getText().split()[0], '<n/a>')
+        class_="tertiary-text js-location-tertiary-text").contents[0].getText().split()[0], "<n/a>")
     
     dict_output = {
         "country" : country,
@@ -139,11 +140,11 @@ def extract_countries(div_input):
 # fungsi untuk mendapatkan data top negara yang mengambil bagian pada project
 def extract_cities(div_input):
     city = try_or(lambda: div_input.find("div", \
-        class_="primary-text js-location-primary-text").find("a").contents[0], '<n/a>')
+        class_="primary-text js-location-primary-text").find("a").contents[0], "<n/a>")
     country = try_or(lambda: div_input.find("div", \
-        class_="secondary-text js-location-secondary-text").find("a").contents[0], '<n/a>')
+        class_="secondary-text js-location-secondary-text").find("a").contents[0], "<n/a>")
     backer = try_or(lambda: div_input.find("div", \
-        class_="tertiary-text js-location-tertiary-text").contents[0].getText().split()[0], '<n/a>')
+        class_="tertiary-text js-location-tertiary-text").contents[0].getText().split()[0], "<n/a>")
     
     dict_output = {
         "city" : city,
@@ -178,36 +179,36 @@ def extract_community_content(url):
     dict_top_country = {}
 
     section_cities = try_or(soup.find("div", \
-        class_="location-list js-locations-cities"), '<n/a>')
+        class_="location-list js-locations-cities"), "<n/a>")
     section_country = try_or(soup.find("div", \
-        class_="location-list js-locations-countries"), '<n/a>')
+        class_="location-list js-locations-countries"), "<n/a>")
 
     section_total_backers = soup.find("div", \
         class_="community-section__hero")
     total_backers= try_or(lambda: section_total_backers.find("div", \
-        class_="title").contents[0].getText().split()[0], '<n/a>')
+        class_="title").contents[0].getText().split()[0], "<n/a>")
 
     section_total_new_backers = soup.find("div", class_="new-backers")
     total_new_backers = try_or(lambda: section_total_new_backers.find("div", \
-        class_="count").contents[0].getText().strip(), '<n/a>')
+        class_="count").contents[0].getText().strip(), "<n/a>")
 
     section_total_existing_backers = soup.find("div", class_="existing-backers")
     total_existing_backers = try_or(lambda: section_total_existing_backers.find("div", \
-        class_="count").contents[0].getText().strip(), '<n/a>')
+        class_="count").contents[0].getText().strip(), "<n/a>")
 
-    if section_country is not '<n/a>':
+    if section_country is not "<n/a>":
         for idx, val in enumerate(section_cities.find_all("div", \
             class_="location-list__item js-location-item")):
             dict_top_cities[idx] = extract_cities(val)
     else:
-        dict_top_cities = '<n/a>'
+        dict_top_cities = "<n/a>"
     
-    if section_cities is not '<n/a>':
+    if section_cities is not "<n/a>":
         for idx, val in enumerate(section_country.findAll("div", \
             class_="location-list__item js-location-item")):
             dict_top_country[idx] = extract_countries(val)
     else:
-        dict_top_country = '<n/a>'
+        dict_top_country = "<n/a>"
 
     dict_temp = {
             "Total Backer" : total_backers,
@@ -220,8 +221,8 @@ def extract_community_content(url):
     return dict_temp  
 
 # fungsi ekstraksi teks pada menu "Updates"
-def extract_info(url): ## untuk mendapatkan data top negara yang mengambil bagian pada project
-        # inisialisasi chromedriver
+def extract_info(url):
+    # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
@@ -244,13 +245,13 @@ def extract_info(url): ## untuk mendapatkan data top negara yang mengambil bagia
     dict_res = []
     for i in range(int(soup.find("span", class_="count").text)):
         title = try_or(lambda: soup.find_all("h2", \
-            class_="mb3")[:i], '<n/a>')
+            class_="mb3")[:i], "<n/a>")
         date = try_or(lambda: soup.find_all("span", \
-            class_="type-13 soft-black_50 block-md")[:i], '<n/a>')
+            class_="type-13 soft-black_50 block-md")[:i], "<n/a>")
         author= try_or(lambda: soup.find_all("div", \
-            class_="pl2")[:i], '<n/a>')
+            class_="pl2")[:i], "<n/a>")
         content= try_or(lambda: soup.find_all("div", \
-            class_="rte__content")[:i], '<n/a>')
+            class_="rte__content")[:i], "<n/a>")
         for value in title:
             titles = value.text
         for value in date:
@@ -290,21 +291,53 @@ def extract_comment_content(url):
 
     soup = BeautifulSoup(content, "lxml")
 
-    section_comments = soup.find("ul", class_="bg-grey-100 border border-grey-400 p2 mb3")
-    list_of_comments = section_comments.find_all("li", class_="mb2")
-    for val in list_of_comments:
-        name_elemen = val.find("div").find("span", class_='mr2')
-        name = name_elemen.get_text() if name_elemen else "No Name"
-        komentar_elemen = val.find("div").find("p")
-        komentar = komentar_elemen.getText() if komentar_elemen else "No Comment"
-        times = val.find("div").find("time")['title']
-        
-        dict_output ={
-            "name" : name,
-            "time" : times,
-            "text" : komentar,
+    list_of_comments = [e for e in soup.find_all("li", class_="mb2")]
+
+    dict_res = {}
+    if not list_of_comments:
+        dict_res = "<n/a>"
+    else:
+        for idx, val in enumerate(list_of_comments):
+            # name_elemen = val.find("div").find("span", class_='mr2')
+            # name = name_elemen.get_text() if name_elemen else "No Name"
+            # komentar_elemen = val.find("div").find("p")
+            # komentar = komentar_elemen.getText() if komentar_elemen else "No Comment"
+            # times = val.find("div").find("time")['title']
+            # print(val.find("ul").find("li", class_="mb2"))
+            post_name = try_or(lambda: val.find("div").find("span", \
+                class_='mr2').getText(), "<n/a>")
+            post_comment = try_or(lambda: val.find("div").find("p").getText(), "<n/a>")
+            post_datetime = try_or(lambda: val.find("div").find("time")['title'], "<n/a>")
+            if post_datetime is not "<n/a>":
+                post_datetime = datetime.strptime(post_datetime, "%B %d, %Y %H:%M %p %Z %z")
+
+            list_of_replies = [e for e in val.find_all("li", class_="mb2")]
+            dict_replies = {}
+            if not list_of_replies:
+                dict_replies = "<n/a>"
+            else:
+                for sidx, sval in enumerate(list_of_replies):
+                    reply_name = try_or(lambda: sval.find("div").find("span", \
+                        class_='mr2').getText(), "<n/a>")
+                    reply_comment = try_or(lambda: sval.find("div").find("p").getText(), "<n/a>")
+                    reply_datetime = try_or(lambda: sval.find("div").find("time")['title'], "<n/a>")
+                    if reply_datetime is not "<n/a>":
+                        reply_datetime = try_or(datetime.strptime(reply_datetime, "%B %d, %Y %H:%M %p %Z %z"), "<n/a>")
+
+                    dict_replies[sidx] = {
+                        "reply_name" : reply_name,
+                        "reply_comment" : reply_comment,
+                        "reply_datetime" : reply_datetime
+                    }
+
+            dict_res[idx] = {
+                "post_name" : post_name,
+                "post_comment" : post_comment,
+                "post_datetime" : post_datetime,
+                "post_replies" : dict_replies
             }
-        print(dict_output)
+    
+    return dict_res 
 
 # inisialisasi direktori data (berisi kumpulan berkas CSV)
 # data didapat dari https://webrobots.io/kickstarter-datasets/
