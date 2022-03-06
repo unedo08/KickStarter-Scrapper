@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import re
 import time
+import sys
 from os import walk
 from datetime import datetime
 
@@ -221,7 +222,7 @@ def extract_community_content(url):
     return dict_temp  
 
 # fungsi ekstraksi teks pada menu "Updates"
-def extract_info(url):
+def extract_update_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -241,30 +242,31 @@ def extract_info(url):
     # akhiri sesi Selenium browser
     driver.quit()
 
-    soup = BeautifulSoup(content, "html")
+    soup = BeautifulSoup(content, "lxml")
+
+    list_of_updates = [e for e in soup.find_all("div", \
+        class_="grid-col-12 grid-col-8-md grid-col-offset-2-md mb6 relative")]
+
     dict_res = []
-    for i in range(int(soup.find("span", class_="count").text)):
-        title = try_or(lambda: soup.find_all("h2", \
-            class_="mb3")[:i], "<n/a>")
-        date = try_or(lambda: soup.find_all("span", \
-            class_="type-13 soft-black_50 block-md")[:i], "<n/a>")
-        author= try_or(lambda: soup.find_all("div", \
-            class_="pl2")[:i], "<n/a>")
-        content= try_or(lambda: soup.find_all("div", \
-            class_="rte__content")[:i], "<n/a>")
-        for value in title:
-            titles = value.text
-        for value in date:
-            dates = value.text
-        for value in author:
-            authors = value.text
-            dict_res.append({
-                'title': titles,
-                'dates': dates,
-                'authors': authors,
-                'content': content
-                })
-            
+    if not list_of_updates:
+        dict_res = "<n/a>"
+    else:
+        for idx, val in enumerate(list_of_updates):
+            title = try_or(lambda: val.find("h2", \
+                class_="mb3").getText(), "<n/a>")
+            date = try_or(lambda: val.find("span", \
+                class_="type-13 soft-black_50 block-md").getText(), "<n/a>")
+            author= try_or(lambda: val.find("div", \
+                class_="pl2").find("div").contents[0], "<n/a>")
+            content_link= try_or(lambda: val.find("a", \
+                class_="truncated-post soft-black block border border-grey-500 hover-border-dark-grey-400")["href"], "<n/a>")
+            dict_res[idx] = {
+                'title': title,
+                'date': date,
+                'author': author,
+                'content_link': content_link
+            }
+    
     return dict_res
   
 # fungsi ekstraksi teks pada menu "Comment"
@@ -339,24 +341,52 @@ def extract_comment_content(url):
     
     return dict_res 
 
-# inisialisasi direktori data (berisi kumpulan berkas CSV)
-# data didapat dari https://webrobots.io/kickstarter-datasets/
-dir_path = ".\data"
-filenames = next(walk(dir_path), (None, None, []))[2]
+def main():
+    # inisialisasi direktori data (berisi kumpulan berkas CSV)
+    # data didapat dari https://webrobots.io/kickstarter-datasets/
+    args = sys.argv[1:]
+    if len(args) > 1:    
+        dir_path_data = args[0]
+        dir_path_output = args[1]
 
-# menjalankan fungsi extract_project_url() secara iteratif
-# sesuai dengan banyaknya berkas pada direktori data
-list_project_site = []
-for ele in filenames:
-    df_kickstarter = pd.read_csv(dir_path + "\\" + ele)
-    list_project_site.extend(extract_project_url(df_kickstarter))
+        filenames = next(walk(dir_path_data), (None, None, []))[2]
 
-# uji coba cetak hasil ekstraksi untuk satu url
-print(extract_campaign_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
-print(extract_faq_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
-print(extract_comment_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
-print(extract_community_content("https://www.kickstarter.com/projects/lgbb/cocktail-mixers-with-unduplicable-taste"))
-print(extract_info("https://www.kickstarter.com/projects/melissaaxel/it-takes-a-village-to-release-a-debut-album-0"))
+        # menjalankan fungsi extract_project_url() secara iteratif
+        # sesuai dengan banyaknya berkas pada direktori data
+        list_project_site = []
+        for ele in filenames:
+            df_kickstarter = pd.read_csv(dir_path_data + "\\" + ele)
+            list_project_site.extend(extract_project_url(df_kickstarter))
 
-#ToDo
-# menggabungkan semua fungsi ekstraksi dalam fungsi main
+        for idx, val in enumerate(list_project_site):
+            dict_tmp = {}
+            if idx < 1:                
+                dict_tmp[idx] = {
+                    "campaign" : extract_campaign_content(val),
+                    "faq" : extract_faq_content(val),
+                    "comment" : extract_comment_content(val),
+                    "community" : extract_community_content(val),
+                    "update" : extract_update_content(val)
+                }
+
+                with open(dir_path_output, 'w') as f:
+                    json.dump(dict_tmp, f)
+            else:
+                dict_tmp[idx] = {
+                    "campaign" : extract_campaign_content(val),
+                    "faq" : extract_faq_content(val),
+                    "comment" : extract_comment_content(val),
+                    "community" : extract_community_content(val),
+                    "update" : extract_update_content(val)
+                }
+                with open(dir_path_output, "r+") as file:
+                    data = json.load(file)
+                    data.append(dict_tmp[idx])
+                    file.seek(0)
+                    json.dump(data, file)
+                
+    else:
+        print("Please define the data directory and output json file location.")
+        
+if __name__ == '__main__':
+    main()
