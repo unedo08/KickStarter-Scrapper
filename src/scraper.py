@@ -197,14 +197,14 @@ def extract_community_content(url):
     total_existing_backers = try_or(lambda: section_total_existing_backers.find("div", \
         class_="count").contents[0].getText().strip(), "<n/a>")
 
-    if section_country is not "<n/a>":
+    if section_cities is not "<n/a>":
         for idx, val in enumerate(section_cities.find_all("div", \
             class_="location-list__item js-location-item")):
             dict_top_cities[idx] = extract_cities(val)
     else:
         dict_top_cities = "<n/a>"
     
-    if section_cities is not "<n/a>":
+    if section_country is not "<n/a>":
         for idx, val in enumerate(section_country.findAll("div", \
             class_="location-list__item js-location-item")):
             dict_top_country[idx] = extract_countries(val)
