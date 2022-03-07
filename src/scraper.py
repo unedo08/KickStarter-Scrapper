@@ -36,10 +36,10 @@ def extract_campaign_content(url):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
         options=options)
     
-    # tunggu maksimal 30 detik, 
+    # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(10)
     driver.get(url+"/description")   
 
     content = driver.page_source
@@ -86,10 +86,10 @@ def extract_faq_content(url):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
         options=options)
     
-    # tunggu maksimal 30 detik, 
+    # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(10)
     driver.get(url+"/faqs")   
 
     content = driver.page_source
@@ -162,10 +162,10 @@ def extract_community_content(url):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
         options=options)
     
-    # tunggu maksimal 30 detik, 
+    # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(10)
     driver.get(url+"/community")   
 
     content = driver.page_source
@@ -228,10 +228,10 @@ def extract_update_content(url):
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     
-    # tunggu maksimal 30 detik, 
+    # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(10)
     driver.get(url+"/posts")   
 
     content = driver.page_source
@@ -277,10 +277,10 @@ def extract_comment_content(url):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
         options=options)
     
-    # tunggu maksimal 30 detik, 
+    # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(10)
     driver.get(url+"/comments")   
 
     content = driver.page_source
