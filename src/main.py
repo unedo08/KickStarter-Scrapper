@@ -36,10 +36,10 @@ def main():
 
                 # menjalankan fungsi extract_project_url() secara iteratif
                 # sesuai dengan banyaknya berkas pada direktori data
-                list_project_site = ["https://www.kickstarter.com/projects/theclaw/the-claw-a-documentary-about-baron-von-raschke"]
-                # for ele in filenames:
-                #     df_kickstarter = pd.read_csv(dir_path_data + "\\" + ele)
-                #     list_project_site.extend(extract_project_url(df_kickstarter))
+                list_project_site = []
+                for ele in filenames:
+                    df_kickstarter = pd.read_csv(dir_path_data + "\\" + ele)
+                    list_project_site.extend(extract_project_url(df_kickstarter))
 
                 for idx, val in enumerate(list_project_site):
                     dict_tmp = {}
