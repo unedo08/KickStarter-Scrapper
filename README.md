@@ -3,17 +3,17 @@ Kickstarter scraper merupakan perangkat untuk mengikis web [Kickstarter](https:/
 
 ## Kebutuhan
 Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan perangkat ini.
-* pandas - versi 1.3.4
 * json
 * re
 * time
 * os
+* pandas - versi 1.3.4
 * selenium - versi 4.1.2
 * webdriver_manager - versi 3.5.2
 * beautifulsoup4 - versi 4.10.0
 
 ## Penggunaan
-`python src\scraper.py`
+`python src\scraper.py data out\res.json`
 
 ## Status
 _sedang berlangsung_
