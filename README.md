@@ -16,4 +16,4 @@ Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan per
 `python src\main.py res.json`
 
 ## Status
-_sedang berlangsung_
+Selesai.
