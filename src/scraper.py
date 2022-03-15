@@ -159,8 +159,7 @@ def extract_community_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
-        options=options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
@@ -179,10 +178,10 @@ def extract_community_content(url):
     dict_top_cities = {}
     dict_top_country = {}
 
-    section_cities = try_or(soup.find("div", \
-        class_="location-list js-locations-cities"), "<n/a>")
-    section_country = try_or(soup.find("div", \
-        class_="location-list js-locations-countries"), "<n/a>")
+    section_cities = soup.find_all("div", \
+        class_="community-section__locations_cities")
+    section_country = soup.find_all("div", \
+        class_="community-section__locations_countries")
 
     section_total_backers = soup.find("div", \
         class_="community-section__hero")
@@ -197,36 +196,38 @@ def extract_community_content(url):
     total_existing_backers = try_or(lambda: section_total_existing_backers.find("div", \
         class_="count").contents[0].getText().strip(), "<n/a>")
 
-    if section_cities is not "<n/a>":
-        for idx, val in enumerate(section_cities.find_all("div", \
-            class_="location-list__item js-location-item")):
+    if section_cities:
+        section_cities_new = section_cities[0].find_all("div", \
+            class_="location-list__item js-location-item")
+        for idx, val in enumerate(section_cities_new):
             dict_top_cities[idx] = extract_cities(val)
     else:
         dict_top_cities = "<n/a>"
     
-    if section_country is not "<n/a>":
-        for idx, val in enumerate(section_country.findAll("div", \
-            class_="location-list__item js-location-item")):
+    if section_country:
+        section_country_new = section_country[0].find_all("div", \
+            class_="location-list js-locations-countries")
+        for idx, val in enumerate(section_country_new):
             dict_top_country[idx] = extract_countries(val)
     else:
         dict_top_country = "<n/a>"
 
     dict_temp = {
-            "Total Backer" : total_backers,
+            "Total Backer": total_backers,
             "Total New Backer": total_new_backers,
             "Total Existing Backer": total_existing_backers,
-            "Top Cities" : dict_top_cities,
+            "Top Cities": dict_top_cities,
             "Top Country": dict_top_country
     }
 
-    return dict_temp  
+    return dict_temp
 
 # fungsi ekstraksi teks pada menu "Updates"
 def extract_update_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
@@ -247,7 +248,7 @@ def extract_update_content(url):
     list_of_updates = [e for e in soup.find_all("div", \
         class_="grid-col-12 grid-col-8-md grid-col-offset-2-md mb6 relative")]
 
-    dict_res = []
+    dict_res = {}
     if not list_of_updates:
         dict_res = "<n/a>"
     else:
@@ -256,9 +257,9 @@ def extract_update_content(url):
                 class_="mb3").getText(), "<n/a>")
             date = try_or(lambda: val.find("span", \
                 class_="type-13 soft-black_50 block-md").getText(), "<n/a>")
-            author= try_or(lambda: val.find("div", \
+            author = try_or(lambda: val.find("div", \
                 class_="pl2").find("div").contents[0], "<n/a>")
-            content_link= try_or(lambda: val.find("a", \
+            content_link = try_or(lambda: val.find("a", \
                 class_="truncated-post soft-black block border border-grey-500 hover-border-dark-grey-400")["href"], "<n/a>")
             dict_res[idx] = {
                 'title': title,
@@ -310,8 +311,6 @@ def extract_comment_content(url):
                 class_='mr2').getText(), "<n/a>")
             post_comment = try_or(lambda: val.find("div").find("p").getText(), "<n/a>")
             post_datetime = try_or(lambda: val.find("div").find("time")['title'], "<n/a>")
-            if post_datetime is not "<n/a>":
-                post_datetime = datetime.strptime(post_datetime, "%B %d, %Y %H:%M %p %Z %z")
 
             list_of_replies = [e for e in val.find_all("li", class_="mb2")]
             dict_replies = {}
@@ -323,8 +322,6 @@ def extract_comment_content(url):
                         class_='mr2').getText(), "<n/a>")
                     reply_comment = try_or(lambda: sval.find("div").find("p").getText(), "<n/a>")
                     reply_datetime = try_or(lambda: sval.find("div").find("time")['title'], "<n/a>")
-                    if reply_datetime is not "<n/a>":
-                        reply_datetime = try_or(datetime.strptime(reply_datetime, "%B %d, %Y %H:%M %p %Z %z"), "<n/a>")
 
                     dict_replies[sidx] = {
                         "reply_name" : reply_name,
@@ -362,26 +359,35 @@ def main():
             dict_tmp = {}
             if idx < 1:                
                 dict_tmp[idx] = {
-                    "campaign" : extract_campaign_content(val),
-                    "faq" : extract_faq_content(val),
-                    "comment" : extract_comment_content(val),
-                    "community" : extract_community_content(val),
-                    "update" : extract_update_content(val)
+                    "site": val,
+                    "campaign": extract_campaign_content(val),
+                    "faq": extract_faq_content(val),
+                    "update": extract_update_content(val),
+                    "comment": extract_comment_content(val),
+                    "community": extract_community_content(val)
                 }
 
                 with open(dir_path_output, 'w') as f:
                     json.dump(dict_tmp, f)
             else:
                 dict_tmp[idx] = {
+                    "site": val,
                     "campaign" : extract_campaign_content(val),
                     "faq" : extract_faq_content(val),
+                    "update" : extract_update_content(val),
                     "comment" : extract_comment_content(val),
-                    "community" : extract_community_content(val),
-                    "update" : extract_update_content(val)
+                    "community" : extract_community_content(val)
                 }
                 with open(dir_path_output, "r+") as file:
                     data = json.load(file)
-                    data.append(dict_tmp[idx])
+                    data[idx] = {
+                        "site": val,
+                        "campaign" : extract_campaign_content(val),
+                        "faq" : extract_faq_content(val),
+                        "update" : extract_update_content(val),
+                        "comment" : extract_comment_content(val),
+                        "community" : extract_community_content(val)
+                    }
                     file.seek(0)
                     json.dump(data, file)
                 
