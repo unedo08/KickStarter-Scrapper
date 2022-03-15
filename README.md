@@ -13,7 +13,7 @@ Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan per
 * beautifulsoup4 - versi 4.10.0
 
 ## Penggunaan
-`python src\scraper.py data out\res.json`
+`python src\main.py res.json`
 
 ## Status
 _sedang berlangsung_
