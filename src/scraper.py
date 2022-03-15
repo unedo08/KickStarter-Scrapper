@@ -7,7 +7,8 @@ import sys
 from os import walk
 from datetime import datetime
 
-from selenium import webdriver
+from selenium import webdriver, common
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
@@ -33,19 +34,19 @@ def extract_campaign_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
-        options=options)
+    s = Service(r"chromedriver/chromedriver.exe")
+    driver = webdriver.Chrome(service=s, options=options)
     
     # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
     driver.implicitly_wait(10)
-    driver.get(url+"/description")   
-
-    content = driver.page_source
+    driver.get(url+"/description")
 
     # tunggu 5 detik
-    time.sleep(5)
+    time.sleep(5)    
+
+    content = driver.page_source
 
     # akhiri sesi Selenium browser
     driver.quit()
@@ -83,19 +84,19 @@ def extract_faq_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
-        options=options)
+    s = Service(r"chromedriver/chromedriver.exe")
+    driver = webdriver.Chrome(service=s, options=options)
     
     # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
     driver.implicitly_wait(10)
-    driver.get(url+"/faqs")   
-
-    content = driver.page_source
+    driver.get(url+"/faqs")
 
     # tunggu 5 detik
     time.sleep(5)
+
+    content = driver.page_source
     
     # akhiri sesi Selenium browser
     driver.quit()
@@ -123,6 +124,157 @@ def extract_faq_content(url):
             }
             dict_res[idx] = dict_tmp
 
+    return dict_res
+
+# fungsi ekstraksi teks pada menu "Updates"
+def extract_update_content(url):
+    # inisialisasi chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    s = Service(r"chromedriver/chromedriver.exe")
+    driver = webdriver.Chrome(service=s, options=options)
+    
+    # tunggu maksimal 10 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(10)
+    driver.get(url+"/posts")
+
+    # tunggu 5 detik
+    time.sleep(5)
+
+    # klik tombol load more
+    while True:
+        try:
+            driver.find_element(By.CLASS_NAME, 'flex w100p').click()
+            time.sleep(5)
+        except common.exceptions.NoSuchElementException:
+            break
+    
+    # tunggu 5 detik
+    time.sleep(5)
+
+    # mengambil halaman HTML dari url yang diberikan pada driver.get(url)
+    content = driver.page_source
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
+    soup = BeautifulSoup(content, "lxml")
+
+    list_of_updates = [e for e in soup.find_all("div", \
+        class_="grid-col-12 grid-col-8-md grid-col-offset-2-md mb6 relative")]
+
+    dict_res = {}
+    if not list_of_updates:
+        dict_res = "<n/a>"
+    else:
+        for idx, val in enumerate(list_of_updates):
+            title = try_or(lambda: val.find("h2", \
+                class_="mb3").getText(), "<n/a>")
+            date = try_or(lambda: val.find("span", \
+                class_="type-13 soft-black_50 block-md").getText(), "<n/a>")
+            author = try_or(lambda: val.find("div", \
+                class_="pl2").find("div").contents[0], "<n/a>")
+            content_link = try_or(lambda: val.find("a", \
+                class_="truncated-post soft-black block border border-grey-500 hover-border-dark-grey-400")["href"], "<n/a>")
+            dict_res[idx] = {
+                'title': title,
+                'date': date,
+                'author': author,
+                'content_link': content_link
+            }
+    
+    return dict_res
+
+# fungsi ekstraksi teks pada menu "Comment"
+def extract_comment_content(url):
+    # inisialisasi chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    s = Service(r"chromedriver/chromedriver.exe")
+    driver = webdriver.Chrome(service=s, options=options)
+    
+    # tunggu maksimal 10 detik, 
+    # jika elemen ada sebelum batas waktu tersebut, 
+    # maka lanjutkan ke baris berikutnya.
+    driver.implicitly_wait(10)
+    driver.get(url+"/comments")
+
+    # tunggu 5 detik
+    time.sleep(5)
+
+    # klik tombol load for more replies dan load more 
+    while True:
+        try:
+            driver.find_element(By.CLASS_NAME, 'bttn-secondary').click()
+            time.sleep(5)
+        except common.exceptions.NoSuchElementException:
+            break
+    
+    # tunggu 5 detik
+    time.sleep(5)
+
+    content = driver.page_source
+    
+    # akhiri sesi Selenium browser
+    driver.quit()
+
+    soup = BeautifulSoup(content, "lxml")
+
+    list_of_comments = [e for e in soup.find_all("li", class_="mb2")]
+
+    dict_res = {}
+    if not list_of_comments:
+        dict_res = "<n/a>"
+    else:
+        for idx, val in enumerate(list_of_comments):
+            # name_elemen = val.find("div").find("span", class_='mr2')
+            # name = name_elemen.get_text() if name_elemen else "No Name"
+            # komentar_elemen = val.find("div").find("p")
+            # komentar = komentar_elemen.getText() if komentar_elemen else "No Comment"
+            # times = val.find("div").find("time")['title']
+            # print(val.find("ul").find("li", class_="mb2"))
+            post_name = try_or(lambda: val.find("div").find("span", \
+                class_='mr2').getText(), "<n/a>")
+            post_comment = try_or(lambda: val.find("div").find("p").getText(), "<n/a>")
+            post_datetime = try_or(lambda: val.find("div").find("time")['title'], "<n/a>")
+
+            list_of_replies = [e for e in val.find_all("li", class_="mb2")]
+            dict_replies = {}
+            if not list_of_replies:
+                dict_replies = "<n/a>"
+            else:
+                for sidx, sval in enumerate(list_of_replies):
+                    reply_name = try_or(lambda: sval.find("div").find("span", \
+                        class_='mr2').getText(), "<n/a>")
+                    reply_comment = try_or(lambda: sval.find("div").find("p").getText(), "<n/a>")
+                    reply_datetime = try_or(lambda: sval.find("div").find("time")['title'], "<n/a>")
+
+                    dict_replies[sidx] = {
+                        "reply_name" : reply_name,
+                        "reply_comment" : reply_comment,
+                        "reply_datetime" : reply_datetime
+                    }
+
+            if post_name is not "<n/a>":
+                dict_res[idx] = {
+                    "post_name" : post_name,
+                    "post_comment" : post_comment,
+                    "post_datetime" : post_datetime,
+                    "post_replies" : dict_replies
+            }
+    
     return dict_res
 
 # fungsi untuk mendapatkan data top negara yang mengambil bagian pada project
@@ -159,18 +311,20 @@ def extract_community_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    s = Service(r"chromedriver/chromedriver.exe")
+    driver = webdriver.Chrome(service=s, options=options)
     
     # tunggu maksimal 10 detik, 
     # jika elemen ada sebelum batas waktu tersebut, 
     # maka lanjutkan ke baris berikutnya.
     driver.implicitly_wait(10)
-    driver.get(url+"/community")   
+    driver.get(url+"/community")
+
+    # tunggu 5 detik
+    time.sleep(5)
 
     content = driver.page_source
     soup = BeautifulSoup(content, "lxml")
-    # tunggu 5 detik
-    time.sleep(5)
     
     # akhiri sesi Selenium browser
     driver.quit()
@@ -221,178 +375,3 @@ def extract_community_content(url):
     }
 
     return dict_temp
-
-# fungsi ekstraksi teks pada menu "Updates"
-def extract_update_content(url):
-    # inisialisasi chromedriver
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    
-    # tunggu maksimal 10 detik, 
-    # jika elemen ada sebelum batas waktu tersebut, 
-    # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(10)
-    driver.get(url+"/posts")   
-
-    content = driver.page_source
-
-    # tunggu 5 detik
-    time.sleep(5)
-    
-    # akhiri sesi Selenium browser
-    driver.quit()
-
-    soup = BeautifulSoup(content, "lxml")
-
-    list_of_updates = [e for e in soup.find_all("div", \
-        class_="grid-col-12 grid-col-8-md grid-col-offset-2-md mb6 relative")]
-
-    dict_res = {}
-    if not list_of_updates:
-        dict_res = "<n/a>"
-    else:
-        for idx, val in enumerate(list_of_updates):
-            title = try_or(lambda: val.find("h2", \
-                class_="mb3").getText(), "<n/a>")
-            date = try_or(lambda: val.find("span", \
-                class_="type-13 soft-black_50 block-md").getText(), "<n/a>")
-            author = try_or(lambda: val.find("div", \
-                class_="pl2").find("div").contents[0], "<n/a>")
-            content_link = try_or(lambda: val.find("a", \
-                class_="truncated-post soft-black block border border-grey-500 hover-border-dark-grey-400")["href"], "<n/a>")
-            dict_res[idx] = {
-                'title': title,
-                'date': date,
-                'author': author,
-                'content_link': content_link
-            }
-    
-    return dict_res
-  
-# fungsi ekstraksi teks pada menu "Comment"
-def extract_comment_content(url):
-    # inisialisasi chromedriver
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),\
-        options=options)
-    
-    # tunggu maksimal 10 detik, 
-    # jika elemen ada sebelum batas waktu tersebut, 
-    # maka lanjutkan ke baris berikutnya.
-    driver.implicitly_wait(10)
-    driver.get(url+"/comments")   
-
-    content = driver.page_source
-
-    # tunggu 5 detik
-    time.sleep(5)
-    
-    # akhiri sesi Selenium browser
-    driver.quit()
-
-    soup = BeautifulSoup(content, "lxml")
-
-    list_of_comments = [e for e in soup.find_all("li", class_="mb2")]
-
-    dict_res = {}
-    if not list_of_comments:
-        dict_res = "<n/a>"
-    else:
-        for idx, val in enumerate(list_of_comments):
-            # name_elemen = val.find("div").find("span", class_='mr2')
-            # name = name_elemen.get_text() if name_elemen else "No Name"
-            # komentar_elemen = val.find("div").find("p")
-            # komentar = komentar_elemen.getText() if komentar_elemen else "No Comment"
-            # times = val.find("div").find("time")['title']
-            # print(val.find("ul").find("li", class_="mb2"))
-            post_name = try_or(lambda: val.find("div").find("span", \
-                class_='mr2').getText(), "<n/a>")
-            post_comment = try_or(lambda: val.find("div").find("p").getText(), "<n/a>")
-            post_datetime = try_or(lambda: val.find("div").find("time")['title'], "<n/a>")
-
-            list_of_replies = [e for e in val.find_all("li", class_="mb2")]
-            dict_replies = {}
-            if not list_of_replies:
-                dict_replies = "<n/a>"
-            else:
-                for sidx, sval in enumerate(list_of_replies):
-                    reply_name = try_or(lambda: sval.find("div").find("span", \
-                        class_='mr2').getText(), "<n/a>")
-                    reply_comment = try_or(lambda: sval.find("div").find("p").getText(), "<n/a>")
-                    reply_datetime = try_or(lambda: sval.find("div").find("time")['title'], "<n/a>")
-
-                    dict_replies[sidx] = {
-                        "reply_name" : reply_name,
-                        "reply_comment" : reply_comment,
-                        "reply_datetime" : reply_datetime
-                    }
-
-            dict_res[idx] = {
-                "post_name" : post_name,
-                "post_comment" : post_comment,
-                "post_datetime" : post_datetime,
-                "post_replies" : dict_replies
-            }
-    
-    return dict_res 
-
-def main():
-    # inisialisasi direktori data (berisi kumpulan berkas CSV)
-    # data didapat dari https://webrobots.io/kickstarter-datasets/
-    args = sys.argv[1:]
-    if len(args) > 1:    
-        dir_path_data = args[0]
-        dir_path_output = args[1]
-
-        filenames = next(walk(dir_path_data), (None, None, []))[2]
-
-        # menjalankan fungsi extract_project_url() secara iteratif
-        # sesuai dengan banyaknya berkas pada direktori data
-        list_project_site = []
-        for ele in filenames:
-            df_kickstarter = pd.read_csv(dir_path_data + "\\" + ele)
-            list_project_site.extend(extract_project_url(df_kickstarter))
-
-        for idx, val in enumerate(list_project_site):
-            dict_tmp = {}
-            if idx < 1:                
-                dict_tmp[idx] = {
-                    "site": val,
-                    "campaign": extract_campaign_content(val),
-                    "faq": extract_faq_content(val),
-                    "update": extract_update_content(val),
-                    "comment": extract_comment_content(val),
-                    "community": extract_community_content(val)
-                }
-
-                with open(dir_path_output, 'w') as f:
-                    json.dump(dict_tmp, f)
-            else:
-                dict_tmp[idx] = {
-                    "site": val,
-                    "campaign" : extract_campaign_content(val),
-                    "faq" : extract_faq_content(val),
-                    "update" : extract_update_content(val),
-                    "comment" : extract_comment_content(val),
-                    "community" : extract_community_content(val)
-                }
-                with open(dir_path_output, "r+") as file:
-                    data = json.load(file)
-                    data[idx] = {
-                        "site": val,
-                        "campaign" : extract_campaign_content(val),
-                        "faq" : extract_faq_content(val),
-                        "update" : extract_update_content(val),
-                        "comment" : extract_comment_content(val),
-                        "community" : extract_community_content(val)
-                    }
-                    file.seek(0)
-                    json.dump(data, file)
-                
-    else:
-        print("Please define the data directory and output json file location.")
-        
-if __name__ == '__main__':
-    main()
