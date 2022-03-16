@@ -1,17 +1,27 @@
 # memuat pustaka Python yang dibutuhkan
-import pandas as pd
 import json
 import re
 import time
-import sys
+import string
 from os import walk
-from datetime import datetime
 
 from selenium import webdriver, common
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
+
+# fungsi untuk membersihkan string
+def cleaning_string(txt):
+    txt = re.sub(r'[^\x00-\x7F]+',' ', txt)
+    txt = re.sub(r'["]', '', txt)
+    txt = re.sub(r'["\n"]', ' ', txt)
+    txt = re.sub(r'["\r"]', ' ', txt)
+    txt = re.sub(r'\.+', ".", txt)
+    txt = re.sub(r'(?<=[?])(?=[^\s])', r' ', txt)
+    txt = re.sub(r'([,.:?0-9]+(\.[,.:?0-9]+)?)', r' \1 ', txt)
+    txt = re.sub(r' ?(\d+) ?', r' \1 ', txt).strip()
+    txt = re.sub(' +', ' ', txt)
+    return txt
 
 # fungsi untuk mengembalikan nilai "N/A"
 def try_or(fn, default):
@@ -73,8 +83,8 @@ def extract_campaign_content(url):
     dict_res = {
         "money": money,
         "backer": backer,
-        "story" : story,
-        "risks_and_challenges": risks_and_challenges
+        "story" : cleaning_string(story),
+        "risks_and_challenges": cleaning_string(risks_and_challenges)
     }
     
     return dict_res
@@ -239,12 +249,6 @@ def extract_comment_content(url):
         dict_res = "<n/a>"
     else:
         for idx, val in enumerate(list_of_comments):
-            # name_elemen = val.find("div").find("span", class_='mr2')
-            # name = name_elemen.get_text() if name_elemen else "No Name"
-            # komentar_elemen = val.find("div").find("p")
-            # komentar = komentar_elemen.getText() if komentar_elemen else "No Comment"
-            # times = val.find("div").find("time")['title']
-            # print(val.find("ul").find("li", class_="mb2"))
             post_name = try_or(lambda: val.find("div").find("span", \
                 class_='mr2').getText(), "<n/a>")
             post_comment = try_or(lambda: val.find("div").find("p").getText(), "<n/a>")
@@ -263,14 +267,14 @@ def extract_comment_content(url):
 
                     dict_replies[sidx] = {
                         "reply_name" : reply_name,
-                        "reply_comment" : reply_comment,
+                        "reply_comment" : cleaning_string(reply_comment),
                         "reply_datetime" : reply_datetime
                     }
 
             if post_name is not "<n/a>":
                 dict_res[idx] = {
                     "post_name" : post_name,
-                    "post_comment" : post_comment,
+                    "post_comment" : cleaning_string(post_comment),
                     "post_datetime" : post_datetime,
                     "post_replies" : dict_replies
             }
