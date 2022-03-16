@@ -1,2 +1,3 @@
 chromedriver/chromedriver.exe
 out/res.json
+src/__pycache__/
