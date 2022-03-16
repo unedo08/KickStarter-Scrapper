@@ -1,17 +1,8 @@
 # memuat pustaka Python yang dibutuhkan
 import pandas as pd
 import json
-import re
-import time
 import sys
 from os import walk, path
-from datetime import datetime
-
-from selenium import webdriver, common
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
 
 from scraper import *
 
