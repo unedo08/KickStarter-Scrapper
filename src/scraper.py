@@ -2,8 +2,6 @@
 import json
 import re
 import time
-import string
-from os import walk
 
 from selenium import webdriver, common
 from selenium.webdriver.common.by import By
