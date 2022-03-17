@@ -61,7 +61,7 @@ def main():
                                 json.dump(dict_tmp, f)
                         else:
                             with open(dir_path_output, "r+") as file:
-                                data = json.load(file)
+                                dict_tmp = json.load(file)
                                 print(str(idx+1), "of", str(len(list_project_site)), "| Scrape", val)
                                 dict_tmp[idx] = {
                                     "site": val,
