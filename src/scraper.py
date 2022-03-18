@@ -51,8 +51,8 @@ def extract_campaign_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/description")
 
-    # tunggu 5 detik
-    time.sleep(5)    
+    # tunggu 2 detik
+    time.sleep(2)
 
     content = driver.page_source
 
@@ -101,8 +101,8 @@ def extract_faq_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/faqs")
 
-    # tunggu 5 detik
-    time.sleep(5)
+    # tunggu 2 detik
+    time.sleep(2)
 
     content = driver.page_source
     
@@ -153,19 +153,19 @@ def extract_update_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/posts")
 
-    # tunggu 5 detik
-    time.sleep(5)
+    # tunggu 2 detik
+    time.sleep(2)
 
     # klik tombol load more
     while True:
         try:
             driver.find_element(By.CLASS_NAME, 'flex w100p').click()
-            time.sleep(5)
+            time.sleep(2)
         except common.exceptions.NoSuchElementException:
             break
     
-    # tunggu 5 detik
-    time.sleep(5)
+    # tunggu 2 detik
+    time.sleep(2)
 
     # mengambil halaman HTML dari url yang diberikan pada driver.get(url)
     content = driver.page_source
@@ -219,19 +219,19 @@ def extract_comment_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/comments")
 
-    # tunggu 5 detik
-    time.sleep(5)
+    # tunggu 2 detik
+    time.sleep(2)
 
     # klik tombol load for more replies dan load more 
     while True:
         try:
             driver.find_element(By.CLASS_NAME, 'bttn-secondary').click()
-            time.sleep(5)
+            time.sleep(2)
         except common.exceptions.NoSuchElementException:
             break
     
-    # tunggu 5 detik
-    time.sleep(5)
+    # tunggu 2 detik
+    time.sleep(2)
 
     content = driver.page_source
     
@@ -322,8 +322,8 @@ def extract_community_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/community")
 
-    # tunggu 5 detik
-    time.sleep(5)
+    # tunggu 2 detik
+    time.sleep(2)
 
     content = driver.page_source
     soup = BeautifulSoup(content, "lxml")
