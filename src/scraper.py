@@ -41,6 +41,11 @@ def extract_project_url(df_input):
 def extract_campaign_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
     driver = webdriver.Chrome(service=s, options=options)
@@ -91,6 +96,11 @@ def extract_campaign_content(url):
 def extract_faq_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
     driver = webdriver.Chrome(service=s, options=options)
@@ -138,11 +148,11 @@ def extract_faq_content(url):
 def extract_update_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
+    options.add_argument('headless')
     options.add_argument('--disable-blink-features=AutomationControlled')
     options.add_argument("--disable-extensions")
     options.add_experimental_option('useAutomationExtension', False)
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
     driver = webdriver.Chrome(service=s, options=options)
@@ -204,11 +214,11 @@ def extract_update_content(url):
 def extract_comment_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
+    options.add_argument('headless')
     options.add_argument('--disable-blink-features=AutomationControlled')
     options.add_argument("--disable-extensions")
     options.add_experimental_option('useAutomationExtension', False)
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
     driver = webdriver.Chrome(service=s, options=options)
@@ -312,6 +322,11 @@ def extract_cities(div_input):
 def extract_community_content(url):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
     driver = webdriver.Chrome(service=s, options=options)
