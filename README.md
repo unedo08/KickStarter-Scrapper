@@ -13,7 +13,7 @@ Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan per
 * beautifulsoup4 - versi 4.10.0
 
 ## Penggunaan
-`python src\main.py res.json`
+`python src\main.py kickstarter-corpus.json`
 
 ## Status
 Selesai.
