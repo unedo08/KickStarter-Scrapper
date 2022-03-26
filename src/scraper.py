@@ -167,7 +167,7 @@ def extract_update_content(url, initial_delay):
     # klik tombol load more
     while True:
         try:
-            driver.find_element(By.CLASS_NAME, 'flex w100p').click()
+            driver.find_element(by=By.LINK_TEXT, value="Load more").click()
             time.sleep(initial_delay)
         except common.exceptions.NoSuchElementException:
             break
@@ -229,10 +229,18 @@ def extract_comment_content(url, initial_delay):
     # tunggu sesaat
     time.sleep(initial_delay)
 
-    # klik tombol load for more replies dan load more 
+    # klik tombol load more 
     while True:
         try:
-            driver.find_element(By.CLASS_NAME, 'bttn-secondary').click()
+            driver.find_element(by=By.LINK_TEXT, value="Load more").click()
+            time.sleep(initial_delay)
+        except common.exceptions.NoSuchElementException:
+            break
+    
+    # klik tombol load for previous replies
+    while True:
+        try:
+            driver.find_element(by=By.LINK_TEXT, value="Load previous replies").click()
             time.sleep(initial_delay)
         except common.exceptions.NoSuchElementException:
             break
