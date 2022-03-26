@@ -1,8 +1,9 @@
-# memuat pustaka Python yang dibutuhkan
+# memuat pustaka standar Python
 import json
 import re
 import time
 
+# memuat pustaka untuk web scraping
 from selenium import webdriver, common
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -38,7 +39,7 @@ def extract_project_url(df_input):
     return list_url
 
 # fungsi ekstraksi teks pada menu "Campaign"
-def extract_campaign_content(url):
+def extract_campaign_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
@@ -55,8 +56,8 @@ def extract_campaign_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/description")
 
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     content = driver.page_source
 
@@ -92,7 +93,7 @@ def extract_campaign_content(url):
     return dict_res
 
 # fungsi ekstraksi teks pada menu "FAQ"
-def extract_faq_content(url):
+def extract_faq_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
@@ -109,8 +110,8 @@ def extract_faq_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/faqs")
 
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     content = driver.page_source
     
@@ -143,7 +144,7 @@ def extract_faq_content(url):
     return dict_res
 
 # fungsi ekstraksi teks pada menu "Updates"
-def extract_update_content(url):
+def extract_update_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
@@ -160,19 +161,19 @@ def extract_update_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/posts")
 
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     # klik tombol load more
     while True:
         try:
             driver.find_element(By.CLASS_NAME, 'flex w100p').click()
-            time.sleep(2)
+            time.sleep(initial_delay)
         except common.exceptions.NoSuchElementException:
             break
     
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     # mengambil halaman HTML dari url yang diberikan pada driver.get(url)
     content = driver.page_source
@@ -208,7 +209,7 @@ def extract_update_content(url):
     return dict_res
 
 # fungsi ekstraksi teks pada menu "Comment"
-def extract_comment_content(url):
+def extract_comment_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
@@ -225,19 +226,19 @@ def extract_comment_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/comments")
 
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     # klik tombol load for more replies dan load more 
     while True:
         try:
             driver.find_element(By.CLASS_NAME, 'bttn-secondary').click()
-            time.sleep(2)
+            time.sleep(initial_delay)
         except common.exceptions.NoSuchElementException:
             break
     
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     content = driver.page_source
     
@@ -315,7 +316,7 @@ def extract_cities(div_input):
     return dict_output
 
 # fungsi ekstraksi teks pada menu "Community"
-def extract_community_content(url):
+def extract_community_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
@@ -332,8 +333,8 @@ def extract_community_content(url):
     driver.implicitly_wait(10)
     driver.get(url+"/community")
 
-    # tunggu 2 detik
-    time.sleep(2)
+    # tunggu sesaat
+    time.sleep(initial_delay)
 
     content = driver.page_source
     soup = BeautifulSoup(content, "lxml")
@@ -387,3 +388,20 @@ def extract_community_content(url):
     }
 
     return dict_temp
+
+# fungsi untuk menggabungkan semua scraper konten menu
+def scrapes(list_url):
+    initial_delay = 4
+    id = list_url[0]
+    url = list_url[1]
+    dict_out = {
+        id : {
+            "site": url,
+            "campaign": extract_campaign_content(url, initial_delay),
+            "faq": extract_faq_content(url, initial_delay),
+            "update": str(extract_update_content(url, initial_delay)),
+            "comment": extract_comment_content(url, initial_delay),
+            "community": str(extract_community_content(url, initial_delay))
+        }
+    }
+    return dict_out
