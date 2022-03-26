@@ -8,6 +8,17 @@ from selenium import webdriver, common
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
+from selenium.common.exceptions import WebDriverException
+
+# fungsi untuk mencoba menjalankan ulang apabila terdapat error
+def retry(fun, max_tries=5):
+    for i in range(max_tries):
+        try:
+            fun()
+            break
+        except (Exception, WebDriverException) as e:
+            print(e, "| retry", i ,"in progress...")
+            time.sleep(5)
 
 # fungsi untuk membersihkan string
 def cleaning_string(txt):
