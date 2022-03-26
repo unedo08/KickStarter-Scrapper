@@ -47,8 +47,9 @@ def main():
                 list_processed = [e for e in list_project_site if e[1] \
                     not in [data[key]["site"] for key in data]]
                 
+                print("checkpoint", str(len(data)-1), "of", str(len(list_project_site)))
                 # processor = int(-1 * (multiprocessing.cpu_count()/3) // 1 * -1)
-                processor = int(-1 * (multiprocessing.cpu_count()/8) // 1 * -1)
+                processor = int(-1 * (multiprocessing.cpu_count()/4) // 1 * -1)
                 pool = multiprocessing.Pool(processes=processor)
 
                 print("*** start ***")
@@ -61,10 +62,11 @@ def main():
                         dict_i = i
                         for elem in dict_i.values():
                             for k, v in elem.items():
-                                if k is "update" and isinstance(v, str):
+                                if k == "update" and isinstance(v, str) and v != "<n/a>":
                                     elem[k] = ast.literal_eval(v)
-                                if k is "community" and isinstance(v, str):
+                                elif k == "community" and isinstance(v, str) and v != "<n/a>":
                                     elem[k] = ast.literal_eval(v)
+
                         dict_tmp.update(dict_i)
 
                     if len(data) < 1:
@@ -77,7 +79,6 @@ def main():
                             file.seek(0)
                             json.dump(data, file, indent = 4)
                     print("scraped", str(b[-1][0]+1), "of", str(len(list_project_site)-1))
-                    break
             else:
                 print("wrong output file extension. use json extension.")
             print("*** end ***")
