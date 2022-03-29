@@ -49,7 +49,7 @@ def main():
                 
                 print("checkpoint", str(len(data)-1), "of", str(len(list_project_site)))
                 # processor = int(-1 * (multiprocessing.cpu_count()/3) // 1 * -1)
-                processor = int(-1 * (multiprocessing.cpu_count()/4) // 1 * -1)
+                processor = int(-1 * (multiprocessing.cpu_count()/8) // 1 * -1)
                 pool = multiprocessing.Pool(processes=processor)
 
                 print("*** start ***")
