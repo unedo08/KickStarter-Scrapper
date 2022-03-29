@@ -1,8 +1,8 @@
 # Kickstarter Scrapper
-Kickstarter scraper merupakan perangkat untuk mengikis web [Kickstarter](https://www.kickstarter.com/). Perangkat ini menggunakan set data proyek di Kickstarter oleh Web Robots yaitu [Kickstarter Datasets](https://webrobots.io/kickstarter-datasets/) sebagai masukan untuk mengikis data teks pada menu _Campaign_, _FAQ_, _Updates_, _Comments_, dan _Community_.
+Kickstarter Scraper is a tool for scraping the [Kickstarter](https://www.kickstarter.com/) web. This tool uses project datasets on Kickstarter by Web Robots namely [Kickstarter Datasets](https://webrobots.io/kickstarter-datasets/) as inputs to scrape text data on the _Campaign_, _FAQ_, _Updates_, _Comments_, and _Community_.
 
-## Kebutuhan
-Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan perangkat ini.
+## Libraries
+The following is a list of the Python libraries required to run this tool.
 * json
 * re
 * time
@@ -12,8 +12,7 @@ Berikut adalah daftar pustaka Python yang diperlukan untuk dapat menjalankan per
 * webdriver_manager - versi 3.5.2
 * beautifulsoup4 - versi 4.10.0
 
-## Penggunaan
-`python src\main.py kickstarter-corpus.json`
-
-## Status
-Selesai.
+## Usage
+1. Make a directory namely `chromedriver`.
+2. Download ChromeDriver from https://chromedriver.chromium.org/downloads, unzip it, and store `chromedriver.exe` inside `chromedriver` directory.
+3. Run this command `python src\main.py kickstarter-corpus.json`
