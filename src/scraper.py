@@ -54,8 +54,8 @@ def extract_campaign_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument("--disable-extensions")
-    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument("--start-maximized")
+    
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
@@ -108,8 +108,8 @@ def extract_faq_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument("--disable-extensions")
-    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument("--start-maximized")
+    
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
@@ -159,8 +159,8 @@ def extract_update_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument("--disable-extensions")
-    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument("--start-maximized")
+    
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
@@ -224,8 +224,8 @@ def extract_comment_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument("--disable-extensions")
-    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument("--start-maximized")
+    
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
@@ -339,8 +339,8 @@ def extract_community_content(url, initial_delay):
     # inisialisasi chromedriver
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument("--disable-extensions")
-    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument("--start-maximized")
+    
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = Service(r"chromedriver/chromedriver.exe")
@@ -410,7 +410,7 @@ def extract_community_content(url, initial_delay):
 
 # fungsi untuk menggabungkan semua scraper konten menu
 def scrapes(list_url):
-    initial_delay = 4
+    initial_delay = 5
     id = list_url[0]
     url = list_url[1]
     dict_out = {
